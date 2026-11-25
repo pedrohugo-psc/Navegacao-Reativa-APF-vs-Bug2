@@ -1,0 +1,32 @@
+\begin{table}[htbp]
+\centering
+\caption{Parâmetros do robô diferencial, sensores e controladores avaliados.}
+\label{tab:parametros}
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llc}
+\toprule
+\textbf{Componente} & \textbf{Parâmetro} & \textbf{Valor} \\
+\midrule
+Robô diferencial & Raio das rodas ($R$) & $0{,}05\text{ m}$ \\
+                 & Bitola entre rodas ($L$) & $0{,}35\text{ m}$ \\
+                 & Limites cinemáticos ($v_{\max}, \omega_{\max}$) & $0{,}40\text{ m/s}$, $1{,}20\text{ rad/s}$ \\
+\midrule
+Sensores         & Frequência dos encoders / odometria RK2 & $100\text{ Hz}$ / $50\text{ Hz}$ \\
+                 & Ruído nos encoders ($\sigma_\omega$) & $0{,}05\text{ rad/s}$ \\
+                 & LiDAR 2D planar ($360$ feixes, $20\text{ Hz}$) & $[0{,}12\text{ m},\, 8{,}0\text{ m}]$ \\
+                 & Ruído no LiDAR ($\sigma_\rho$) & $0{,}01\text{ m}$ \\
+\midrule
+APF (nominal)    & Ganhos ($k_{\text{att}}, k_{\text{rep}}$) & $1{,}0$, $0{,}8$ \\
+                 & Raio de influência repulsiva ($\rho_0$) & $1{,}10\text{ m}$ \\
+                 & Ganhos cinemáticos ($k_v, k_\omega$) & $0{,}25$, $1{,}8$ \\
+\midrule
+Bug2             & Distâncias ($d_{\text{hit}}, d_{\text{wall}}, d_{\text{debounce}}$) & $0{,}52\text{ m}$, $0{,}45\text{ m}$, $0{,}45\text{ m}$ \\
+                 & Tolerância à linha-$m$ ($\delta_m$) e progresso ($\epsilon$) & $0{,}10\text{ m}$, $0{,}15\text{ m}$ \\
+\midrule
+Protocolo        & Tolerância à meta ($d_{\text{tol}}$) & $0{,}20\text{ m}$ \\
+                 & Sementes aleatórias ($N=5$) & $\{42, 43, 44, 45, 46\}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,300 @@
+<?xml version="1.0" ?>
+<!--
+  Modelo Fisico do Robo Diferencial — Projeto 6 (PPGEE0060 / UFBA)
+  Parametros cinematicos (Decisao D2 do memoria.md):
+    - Raio das rodas motrizes: R = 0.05 m
+    - Bitola (distancia entre rodas): L = 0.35 m (y = +0.175 m e y = -0.175 m)
+    - Referencial base_link: EXATAMENTE no ponto medio do eixo das rodas (x=0, y=0, z=0.05)
+-->
+<sdf version="1.9">
+  <model name="robo_diferencial">
+    <canonical_link>base_link</canonical_link>
+
+    <!-- =================================================================== -->
+    <!-- 1. CHASSI PRINCIPAL (base_link)                                     -->
+    <!-- =================================================================== -->
+    <link name="base_link">
+      <!-- Origem exatamente no ponto medio do eixo das rodas (altura z = R = 0.05 m) -->
+      <pose>0 0 0.05 0 0 0</pose>
+
+      <inertial>
+        <mass>4.0</mass>
+        <pose>0 0 0.03 0 0 0</pose>
+        <inertia>
+          <ixx>0.030</ixx>
+          <iyy>0.045</iyy>
+          <izz>0.065</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <!-- Corpo do chassi (simetrico em torno de x=0, y=0) -->
+      <visual name="chassi_visual">
+        <pose>0 0 0.035 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.36 0.28 0.07</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.12 0.35 0.65 1</ambient>
+          <diffuse>0.15 0.45 0.80 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- Marcador visual frontal (faixa verde na frente +X para facilitar visualizacao) -->
+      <visual name="marcador_frente">
+        <pose>0.16 0 0.072 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.04 0.14 0.008</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.85 0.2 1</ambient>
+          <diffuse>0.1 0.90 0.2 1</diffuse>
+        </material>
+      </visual>
+
+      <collision name="chassi_colisao">
+        <pose>0 0 0.035 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.36 0.28 0.07</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Rodizio (caster) frontal sem atrito: evita inclinacao para frente -->
+      <visual name="caster_frontal_visual">
+        <pose>0.14 0 -0.025 0 0 0</pose>
+        <geometry>
+          <sphere><radius>0.025</radius></sphere>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+        </material>
+      </visual>
+      <collision name="caster_frontal_colisao">
+        <pose>0.14 0 -0.025 0 0 0</pose>
+        <geometry>
+          <sphere><radius>0.025</radius></sphere>
+        </geometry>
+        <surface>
+          <friction>
+            <ode><mu>0.0</mu><mu2>0.0</mu2></ode>
+          </friction>
+        </surface>
+      </collision>
+
+      <!-- Rodizio (caster) traseiro sem atrito: garante estabilidade longitudinal -->
+      <visual name="caster_traseiro_visual">
+        <pose>-0.14 0 -0.025 0 0 0</pose>
+        <geometry>
+          <sphere><radius>0.025</radius></sphere>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+        </material>
+      </visual>
+      <collision name="caster_traseiro_colisao">
+        <pose>-0.14 0 -0.025 0 0 0</pose>
+        <geometry>
+          <sphere><radius>0.025</radius></sphere>
+        </geometry>
+        <surface>
+          <friction>
+            <ode><mu>0.0</mu><mu2>0.0</mu2></ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+
+    <!-- =================================================================== -->
+    <!-- 2. RODA ESQUERDA (x = 0, y = +L/2 = +0.175 m, R = 0.05 m)           -->
+    <!-- =================================================================== -->
+    <link name="roda_esquerda">
+      <pose>0 0.175 0.05 -1.57079632679 0 0</pose>
+      <inertial>
+        <mass>0.4</mass>
+        <inertia>
+          <ixx>0.0003</ixx>
+          <iyy>0.0003</iyy>
+          <izz>0.0005</izz>
+        </inertia>
+      </inertial>
+      <visual name="roda_esq_visual">
+        <geometry>
+          <cylinder><radius>0.05</radius><length>0.03</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+        </material>
+      </visual>
+      <!-- Colisao esferica de raio R=0.05 m garante ponto de contato exato em y = +0.175 m (L_eff = 0.35 m) -->
+      <collision name="roda_esq_colisao">
+        <geometry>
+          <sphere><radius>0.05</radius></sphere>
+        </geometry>
+        <surface>
+          <friction>
+            <ode><mu>1.5</mu><mu2>1.5</mu2></ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+
+    <joint name="junta_roda_esquerda" type="revolute">
+      <parent>base_link</parent>
+      <child>roda_esquerda</child>
+      <axis>
+        <xyz expressed_in="__model__">0 1 0</xyz>
+        <limit>
+          <lower>-1.79769e+308</lower>
+          <upper>1.79769e+308</upper>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- =================================================================== -->
+    <!-- 3. RODA DIREITA (x = 0, y = -L/2 = -0.175 m, R = 0.05 m)            -->
+    <!-- =================================================================== -->
+    <link name="roda_direita">
+      <pose>0 -0.175 0.05 -1.57079632679 0 0</pose>
+      <inertial>
+        <mass>0.4</mass>
+        <inertia>
+          <ixx>0.0003</ixx>
+          <iyy>0.0003</iyy>
+          <izz>0.0005</izz>
+        </inertia>
+      </inertial>
+      <visual name="roda_dir_visual">
+        <geometry>
+          <cylinder><radius>0.05</radius><length>0.03</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.15 0.15 0.15 1</diffuse>
+        </material>
+      </visual>
+      <!-- Colisao esferica de raio R=0.05 m garante ponto de contato exato em y = -0.175 m (L_eff = 0.35 m) -->
+      <collision name="roda_dir_colisao">
+        <geometry>
+          <sphere><radius>0.05</radius></sphere>
+        </geometry>
+        <surface>
+          <friction>
+            <ode><mu>1.5</mu><mu2>1.5</mu2></ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+
+    <joint name="junta_roda_direita" type="revolute">
+      <parent>base_link</parent>
+      <child>roda_direita</child>
+      <axis>
+        <xyz expressed_in="__model__">0 1 0</xyz>
+        <limit>
+          <lower>-1.79769e+308</lower>
+          <upper>1.79769e+308</upper>
+        </limit>
+      </axis>
+    </joint>
+
+    <!-- =================================================================== -->
+    <!-- 4. SENSOR LiDAR 2D PLANAR 360 graus (360 feixes, 0.12 a 8.0 m)      -->
+    <!-- =================================================================== -->
+    <link name="lidar_link">
+      <pose>0 0 0.16 0 0 0</pose>
+      <inertial>
+        <mass>0.15</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+        </inertia>
+      </inertial>
+      <visual name="lidar_visual">
+        <geometry>
+          <cylinder><radius>0.04</radius><length>0.05</length></cylinder>
+        </geometry>
+        <material>
+          <ambient>0.8 0.15 0.15 1</ambient>
+          <diffuse>0.9 0.20 0.20 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- Plugin de Sensor (3 de 4): LiDAR 2D 360 graus publicando em /scan -->
+      <sensor name="lidar_2d" type="gpu_lidar">
+        <topic>/scan</topic>
+        <update_rate>20</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.14159265</min_angle>
+              <max_angle>3.14159265</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.12</min>
+            <max>8.0</max>
+            <resolution>0.01</resolution>
+          </range>
+        </lidar>
+      </sensor>
+    </link>
+
+    <joint name="junta_lidar" type="fixed">
+      <parent>base_link</parent>
+      <child>lidar_link</child>
+    </joint>
+
+    <!-- =================================================================== -->
+    <!-- 5. PLUGINS DO GAZEBO HARMONIC                                       -->
+    <!-- =================================================================== -->
+
+    <!-- Plugin 1: Acionamento Diferencial (escuta /cmd_vel e gira as rodas) -->
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+      <left_joint>junta_roda_esquerda</left_joint>
+      <right_joint>junta_roda_direita</right_joint>
+      <wheel_separation>0.35</wheel_separation>
+      <wheel_radius>0.05</wheel_radius>
+      <max_linear_acceleration>1.5</max_linear_acceleration>
+      <min_linear_acceleration>-1.5</min_linear_acceleration>
+      <max_angular_acceleration>3.0</max_angular_acceleration>
+      <min_angular_acceleration>-3.0</min_angular_acceleration>
+      <topic>/cmd_vel</topic>
+      <odom_topic>/model/robo_diferencial/internal_odom</odom_topic>
+      <tf_topic>/model/robo_diferencial/internal_tf</tf_topic>
+    </plugin>
+
+    <!-- Plugin 2: Encoders das Rodas (publica angulos e velocidades em /joint_states) -->
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <joint_name>junta_roda_esquerda</joint_name>
+      <joint_name>junta_roda_direita</joint_name>
+      <topic>/joint_states</topic>
+      <update_rate>100</update_rate>
+    </plugin>
+
+    <!-- Plugin 4: Ground Truth (pose real do base_link em /ground_truth/odom) -->
+    <!-- REGRA DE OURO: Apenas o no avaliador pode assinar este topico!        -->
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>world</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <odom_topic>/ground_truth/odom</odom_topic>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <dimensions>2</dimensions>
+    </plugin>
+  </model>
+</sdf>

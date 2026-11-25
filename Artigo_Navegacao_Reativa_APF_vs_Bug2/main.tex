@@ -1,0 +1,72 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Codificacao e idioma (Portugues Brasileiro)
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+% Pacotes padrao IEEE e matematicos
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
+
+% Diretorio padrao de figuras
+\graphicspath{{figuras/}}
+
+% Rotulos em portugues para resumo e palavras-chave (opcional)
+% \renewcommand{\abstractname}{Resumo}
+% \renewcommand{\IEEEkeywordsname}{Palavras-chave}
+
+\begin{document}
+
+% TODO: Ajustar o titulo definitivo do artigo
+\title{Avaliação Comparativa entre Campos Potenciais Artificiais e Algoritmo Bug2 com Odometria RK2 em Robô Móvel Diferencial}
+
+\author{\IEEEauthorblockN{Pedro Hugo Passos da Silva Carlos}
+\IEEEauthorblockA{\textit{Departamento de Engenharia Elétrica e de Computação} \\
+\textit{Programa de Pós-Graduação em Engenharia Elétrica e Computação (PPGEEC)} \\
+\textit{Universidade Federal da Bahia (UFBA)} \\
+Salvador, Bahia, Brasil \\
+pedrohugo.psc@gmail.com}
+}
+
+\maketitle
+
+\begin{abstract}
+% TODO: Redigir o resumo final apos concluir todas as secoes (nao usar simbolos matematicos, citacoes ou notas de rodape no abstract).
+% Pontos sugeridos:
+% - Contexto: navegacao reativa sem mapa global previo usando apenas odometria incremental e LiDAR 2D.
+% - Metodologia: modelagem cinematica diferencial com integracao RK2 (Etapa I) e comparacao APF vs. Bug2 em Gazebo Harmonic + ROS 2 Jazzy (Etapa II).
+% - Cenarios e protocolo: N = 5 sementes (42..46) com ruido gaussiano controlado nos cenarios A (esparsos/corredor), B (armadilha em "U") e subcenario GNRON, alem de estudo parametrico do APF.
+% - Principais achados quantitativos (RMSE da odometria, taxa de sucesso, comprimento, tempo, d_min, minimos locais e GNRON).
+\end{abstract}
+
+\begin{IEEEkeywords}
+Robótica Móvel, Odometria, Runge-Kutta de 2ª Ordem, Navegação Reativa, Campos Potenciais Artificiais, Algoritmo Bug2, ROS 2, Gazebo.
+\end{IEEEkeywords}
+
+% Secoes do artigo (edite cada arquivo dentro da pasta secoes/)
+% Estrutura alinhada a Secao 6 (Entregaveis, item 4) do Edital PPGEE0060 2026/2
+\input{secoes/01_introducao}
+\input{secoes/02_fundamentacao}
+\input{secoes/03_metodologia}
+\input{secoes/04_desenvolvimento}
+\input{secoes/05_resultados}
+\input{secoes/06_discussao}
+\input{secoes/07_conclusoes}
+
+% TODO: Remover \nocite{*} apos inserir as citacoes (\cite{...}) no corpo do texto (mantido temporariamente para evitar erro de bibliografia vazia no latexmk).
+\nocite{*}
+\bibliographystyle{IEEEtran}
+\bibliography{referencias}
+
+\end{document}

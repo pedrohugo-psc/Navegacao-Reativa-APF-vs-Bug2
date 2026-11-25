@@ -1,0 +1,13 @@
+{
+  "status": "SUCCESS",
+  "sucesso": true,
+  "bloqueio_minimo_local": false,
+  "colisoes": 0,
+  "comprimento_m": 10.0192,
+  "tempo_s": 33.4,
+  "d_min_m": 0.2781,
+  "erro_final_odom_m": 0.0021,
+  "dist_final_meta_gt_m": 0.1989,
+  "hit_points": [],
+  "leave_points": []
+}

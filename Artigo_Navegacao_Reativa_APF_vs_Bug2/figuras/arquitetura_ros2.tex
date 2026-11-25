@@ -1,0 +1,51 @@
+\begin{tikzpicture}[
+    font=\scriptsize,
+    >=Stealth,
+    node distance=0.45cm and 0.65cm,
+    sim/.style={
+        rectangle, rounded corners=2pt, draw=black!80, fill=gray!12,
+        minimum width=2.45cm, minimum height=0.65cm, align=center, inner sep=3pt
+    },
+    bridge/.style={
+        rectangle, rounded corners=2pt, draw=teal!70!black, fill=teal!10,
+        thick, minimum width=2.0cm, minimum height=0.65cm, align=center, inner sep=3pt
+    },
+    rosnode/.style={
+        rectangle, rounded corners=2pt, draw=blue!70!black, fill=blue!8,
+        thick, minimum width=2.55cm, minimum height=0.58cm, align=center, inner sep=3pt
+    },
+    eval/.style={
+        rectangle, rounded corners=2pt, draw=orange!75!black, fill=orange!10,
+        thick, minimum width=2.55cm, minimum height=0.58cm, align=center, inner sep=3pt
+    },
+    topic/.style={
+        font=\ttfamily\tiny, fill=white, inner sep=1pt
+    }
+]
+
+% Coluna 1: Simulador + Ponte
+\node[sim] (gz) {\textbf{Gazebo Harmonic}\\(\texttt{robo\_diferencial})};
+\node[bridge, below=0.65cm of gz] (br) {\textbf{\texttt{ros\_gz\_bridge}}\\(/clock, sensores, cmd)};
+
+% Coluna 2: Estimacao e Controle (sem acesso ao Ground Truth)
+\node[rosnode, right=1.15cm of br, yshift=0.55cm] (odom) {\textbf{\texttt{odom\_estimator}}\\Integração RK2};
+\node[rosnode, below=0.65cm of odom] (nav) {\textbf{Controlador Reativo}\\\texttt{apf\_navigator} / \texttt{bug2\_navigator}};
+
+% Coluna 3: Avaliacao (isolamento estrito de /ground_truth/odom)
+\node[eval, right=1.15cm of gz] (logger) {\textbf{Nós Avaliadores}\\\texttt{metrics\_logger} / \texttt{nav\_metrics\_logger}};
+
+% Conexoes
+\draw[->, thick] (gz) -- node[right, topic] {Gz Transport} (br);
+
+\draw[->, thick] (br.east) |- node[pos=0.72, above, topic] {/joint\_states} (odom.west);
+\draw[->, thick] (br.east) |- node[pos=0.72, below, topic] {/scan (best\_effort)} (nav.west);
+
+\draw[->, thick] (odom.south) -- node[right, topic] {/odom\_est} (nav.north);
+
+\draw[->, thick] (nav.south) -- ++(0,-0.32) -| node[pos=0.25, below, topic] {/cmd\_vel} (br.south);
+
+\draw[->, dashed, thick, orange!80!black] (br.north east) -- node[sloped, above, topic] {/ground\_truth/odom} (logger.south west);
+\draw[->, thick] (odom.north east) -- node[right, topic] {/odom\_est} (logger.south);
+\draw[->, thick] (nav.east) -| node[pos=0.25, below, topic] {/nav\_status, /nav\_events} (logger.south east);
+
+\end{tikzpicture}

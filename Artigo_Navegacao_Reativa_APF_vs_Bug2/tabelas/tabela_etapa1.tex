@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering
+\caption{Métricas de erro da odometria RK2 em relação ao \textnormal{\textit{ground truth}} na Etapa I.}
+\label{tab:etapa1_odometria}
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Trajetória} & \textbf{Comp. (m)} & \textbf{$\text{RMSE}_p$ (m)} & \textbf{$e_p(t_f)$ (m)} & \textbf{$\text{RMSE}_\theta$ ($^\circ$)} & \textbf{$e_\theta(t_f)$ ($^\circ$)} \\
+\midrule
+Linha Reta (5 m)        & 4,99 & 0,0039 & 0,0061 & 0,05 & 0,04 \\
+Arco Circular ($R_c=1$ m) & 6,26 & 0,0042 & 0,0055 & 0,23 & 0,31 \\
+Percurso Composto (``S'') & 4,99 & 0,0036 & 0,0039 & 0,17 & 0,04 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

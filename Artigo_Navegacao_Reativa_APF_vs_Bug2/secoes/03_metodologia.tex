@@ -1,0 +1,27 @@
+\section{Metodologia Experimental}
+
+\subsection{Plataforma de Simulação e Modelo do Robô}
+% TODO: Descrever o ambiente (Ubuntu 24.04, ROS 2 Jazzy Jalisco, Gazebo Sim 8.11.0 Harmonic) e a geometria calibrada do robo diferencial (base_link no centro do eixo motriz, colisoes esfericas pontuais com L_eff = 0,35 m, sensores e limites cinematicos/dinamicos).
+% Referenciar a Tabela~\ref{tab:parametros}.
+
+\input{tabelas/tabela_parametros}
+
+\subsection{Protocolo da Etapa I --- Validação da Odometria}
+% TODO: Descrever as 3 trajetorias de teste em arena livre (mundo_etapa1_vazio.sdf):
+% 1. Linha reta (5 m)
+% 2. Arco circular (R_c = 1 m)
+% 3. Percurso composto em "S"
+% Explicar a frequencia de integracao (50 Hz), uso de use_sim_time e comparacao contra /ground_truth/odom.
+
+\subsection{Protocolo da Etapa II --- Cenários de Navegação e Estudo Paramétrico}
+% TODO: Descrever os 3 cenarios (arquivos .sdf), posicoes de partida S=(0,0) e meta T, e o estudo parametrico:
+% - Cenario A (cenario_a_esparsos.sdf): obstaculos convexos esparsos + corredor, T=(8,0).
+% - Cenario B (cenario_b_armadilha_u.sdf): parede concava em "U", T=(6,0).
+% - Subcenario GNRON (cenario_gnron.sdf): parede a 0,45 m atras da meta T=(6,0).
+% - Estudo parametrico do APF no Cenario A (Fraco, Nominal, Forte, Ganho Alto) e variacao de rho_0 no GNRON (0,35; 0,80; 1,10; 1,50 m).
+
+\subsection{Métricas de Avaliação e Repetibilidade}
+% TODO: Definir formalmente:
+% - Etapa I: erros instantaneos e_p(t), e_theta(t) e RMSE_p, RMSE_theta.
+% - Etapa II: Taxa de sucesso (%), Colisoes, Comprimento L_traj (m), Tempo total T_tot (s), Distancia minima aos obstaculos d_min (m), Taxa de bloqueio / minimos locais (%), Erro odométrico final e_p(t_f) e Distancia real a meta d_meta (m).
+% - Repetibilidade: N = 5 sementes fixas {42, 43, 44, 45, 46} com ruido branco gaussiano nos encoders (sigma_omega = 0,05 rad/s) e no LiDAR (sigma_rho = 0,01 m).

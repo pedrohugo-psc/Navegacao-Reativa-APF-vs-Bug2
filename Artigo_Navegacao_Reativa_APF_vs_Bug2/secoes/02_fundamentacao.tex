@@ -1,0 +1,26 @@
+\section{Fundamentação Teórica e Trabalhos Relacionados}
+
+\subsection{Cinemática Diferencial e Odometria (RK2)}
+% TODO: Apresentar:
+% - Referenciais inercial {I} e local {R} no ponto medio do eixo motriz (restricao nao-holonomica: \dot{y}_R = 0).
+% - Cinematica direta do robo diferencial (R = 0,05 m, L = 0,35 m) relacionando (omega_d, omega_e) a (v, omega) e (x_dot, y_dot, theta_dot).
+% - Discretizacao por Metodo do Ponto Medio (Runge-Kutta de 2a Ordem - RK2) vs. Euler explicito e normalizacao angular wrapToPi.
+% - Referencias: \cite{siegwart2004,corke2023,thrun2005}.
+
+\subsection{Campos Potenciais Artificiais (APF) e Limitações}
+% TODO: Apresentar:
+% - Formulacao de Khatib (1986): potencial atrativo U_att(q) e repulsivo U_rep(q), forcas F_att e F_rep (por feixe LiDAR dentro de rho_0).
+% - Projecao cinematica da forca resultante F_total para comandos (v, omega) com frenagem angular max(0, cos(e_theta)).
+% - As 4 limitacoes inerentes descritas por Koren & Borenstein (1991): minimos locais (armadilhas concavas), passagens estreitas, oscilacoes e GNRON (Goal Non-Reachable with Obstacles Nearby).
+% - Referencias: \cite{khatib1986,koren1991}.
+
+\subsection{Algoritmo Bug2}
+% TODO: Apresentar:
+% - Definicao da linha-m entre S e T, pontos de impacto (H_i) e saida (L_i).
+% - Condicao de progresso estrito ||L_i - T|| < ||H_i - T|| e prova de convergencia em tempo finito.
+% - Maquina de estados finitos (GOAL_SEEKING <-> WALL_FOLLOWING) e controle polar/tangencial de contorno de parede.
+% - Referencias: \cite{lumelsky1987}.
+
+\subsection{Trabalhos Relacionados}
+% TODO: Situar o uso de simulacao fisica (Gazebo / ROS 2) e bibliotecas de referencia na validacao de metodos classicos de navegacao reativa.
+% - Referencias: \cite{macenski2023,macenski2020,sakai2018}.

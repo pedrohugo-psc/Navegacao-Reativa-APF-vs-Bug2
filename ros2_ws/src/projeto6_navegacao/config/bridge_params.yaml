@@ -1,0 +1,40 @@
+# ==============================================================================
+# Ponte ROS 2 Jazzy <-> Gazebo Harmonic (ros_gz_bridge)
+# Traduz APENAS os 5 topicos essenciais entre o simulador e os nossos nos Python.
+# ==============================================================================
+
+# 1. Relogio da simulacao (Gazebo -> ROS 2): sincroniza o passo dt do RK2!
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+# 2. Comandos de velocidade (ROS 2 -> Gazebo): envia (v, w) para o DiffDrive
+- ros_topic_name: "/cmd_vel"
+  gz_topic_name: "/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+# 3. Encoders das rodas (Gazebo -> ROS 2): angulos e velocidades angulares
+- ros_topic_name: "/joint_states"
+  gz_topic_name: "/joint_states"
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "gz.msgs.Model"
+  direction: GZ_TO_ROS
+
+# 4. LiDAR 2D 360 graus (Gazebo -> ROS 2): vetor de 360 distancias [m]
+- ros_topic_name: "/scan"
+  gz_topic_name: "/scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
+# 5. Ground Truth (Gazebo -> ROS 2): PROIBIDO nos controladores!
+#    Uso exclusivo do no avaliador para calcular e_p(t), e_theta(t) e RMSE.
+- ros_topic_name: "/ground_truth/odom"
+  gz_topic_name: "/ground_truth/odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS

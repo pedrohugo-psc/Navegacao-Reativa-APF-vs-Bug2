@@ -1,0 +1,47 @@
+\section{Introdução}
+
+Inicialmente, os robôs utilizavam sistemas de controle de alto nível para
+evitar colisões; porém, essa abordagem nem sempre é prática quando o robô
+precisa reagir rapidamente durante o deslocamento. Por conta disso,      
+surgiu, na década de 1980, o controle de baixo nível, que permitiu aos   
+robôs realizar o desvio de obstáculos em tempo real~\cite{khatib1986}.   
+Esse método possibilitou que o robô interagisse com o ambiente de forma  
+mais rápida por meio de sensores acoplados, permitindo atualmente que    
+robôs aspiradores mais simples limpem o ambiente de forma autônoma sem   
+utilizar um mapa~\cite{corke2023}. Por outro lado, o planejamento de     
+caminho baseado em mapa (\textit{path planning}) exige construir ou      
+conhecer o mapa do ambiente e saber a posição do robô em relação a ele em
+todos os momentos, sendo mais comum em carros autônomos, aeronaves, entre
+outros, por suportar tarefas mais complexas~\cite{corke2023}. Já para o  
+exemplo do robô aspirador, a abordagem reativa torna-se adequada, pois   
+sistemas reativos costumam ser mais rápidos e simples~\cite{corke2023}.  
+
+Mesmo sem mapa global, um robô diferencial precisa manter uma estimativa 
+contínua da própria pose com base na velocidade, direção e intervalo de  
+deslocamento a partir de uma estimativa anterior~\cite{corke2023}.       
+Existem vários métodos para realizar esse cálculo da odometria, sendo um 
+deles o método de Runge-Kutta de 2ª~ordem (RK2). Para auxiliar o robô    
+durante a navegação, utilizam-se sensores como os \textit{encoders} nas  
+rodas (para a odometria) e o LiDAR (para a percepção local dos           
+obstáculos); todavia, esses sensores não são perfeitos e acumulam        
+erros~\cite{siegwart2004,corke2023}. Nesse contexto, empregam-se         
+algoritmos reativos como os Campos Potenciais Artificiais
+(APF)~\cite{khatib1986} e o algoritmo Bug2~\cite{lumelsky1987}, que, a   
+partir da odometria estimada e das leituras locais, conduzem o robô até a
+meta desviando de obstáculos.
+
+Diante disso, o presente trabalho tem como objetivo avaliar
+comparativamente os algoritmos clássicos APF e Bug2, utilizando a        
+odometria calculada via RK2, em três cenários: o primeiro com obstáculos 
+esparsos e um corredor até o ponto final (Cenário~A); o segundo com um   
+obstáculo côncavo em formato de ``U'' antes do ponto final (Cenário~B); e
+o terceiro com uma barreira posicionada atrás do ponto final (subcenário 
+GNRON). Além disso, avalia-se a sensibilidade dos parâmetros do APF e    
+valida-se o estimador odométrico RK2 frente ao \textit{ground truth}.
+
+O restante deste artigo está organizado da seguinte forma: a Seção~II  
+apresenta a fundamentação teórica e os trabalhos relacionados; a     
+Seção~III descreve a metodologia experimental; a Seção~IV detalha o     
+desenvolvimento e a implementação; a Seção~V apresenta os resultados
+experimentais; a Seção~VI traz a discussão técnica e as limitações; e a 
+Seção~VII apresenta as conclusões. 

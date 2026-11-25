@@ -1,0 +1,23 @@
+\section{Desenvolvimento e Implementação}
+
+\subsection{Arquitetura Modular em ROS 2 Jazzy e Gazebo Harmonic}
+% TODO: Descrever os pacotes, plugins SDF do modelo robo_diferencial (diff-drive, joint-state-publisher, gpu_lidar, odometry-publisher), bridge ros_gz_bridge (bridge_params.yaml), QoS (qos_profile_sensor_data em /scan) e sincronizacao temporal (/clock).
+% Referenciar a Figura~\ref{fig:arquitetura_ros2} e as referencias \cite{ros2jazzy,gazeboharmonic}.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\columnwidth}{!}{\input{figuras/arquitetura_ros2}}
+\caption{Arquitetura modular em ROS~2 Jazzy e Gazebo Harmonic com isolamento estrito do tópico \texttt{/ground\_truth/odom}.}
+\label{fig:arquitetura_ros2}
+\end{figure}
+
+\subsection{Estimador de Odometria (\texttt{odom\_estimator\_node})}
+% TODO: Detalhar a implementacao do no odom_estimator_node.py e do modulo kinematic_model.py (leitura de /joint_states, injecao opcional de ruido gaussiano com seed fixa, passo RK2 e publicacao em /odom_est).
+
+\subsection{Controladores Reativos: APF e Bug2}
+% TODO: Detalhar:
+% - apf_navigator_node.py: calculo vetorial de F_att e F_rep no referencial do robo/global, saturacao de velocidade/aceleracao e criterio de deteccao de minimo local.
+% - bug2_navigator_node.py: FSM (GOAL_SEEKING / WALL_FOLLOWING), registro de H_i e L_i em /nav_events, debounce de saida e lei de seguimento de parede.
+
+\subsection{Isolamento do \textit{Ground Truth} e Registro de Métricas}
+% TODO: Explicar a garantia arquitetural de que apenas metrics_logger_node.py e nav_metrics_logger_node.py assinam /ground_truth/odom, alem da orquestracao automatizada das baterias (scripts run_etapa1.py e run_fase6_experimentos.py).

@@ -1,0 +1,44 @@
+\section{Resultados Experimentais}
+
+\subsection{Etapa I: Validação da Odometria RK2}
+% TODO: Analisar os resultados da Tabela~\ref{tab:etapa1_odometria}, Figura~\ref{fig:etapa1_trajetorias} e Figura~\ref{fig:etapa1_erros} para as 3 trajetorias (reta, arco circular e percurso composto em "S").
+
+\input{tabelas/tabela_etapa1}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig1_etapa1_trajetorias.png}
+\caption{Comparação entre as trajetórias estimadas pela odometria RK2 e o \textit{ground truth} do simulador na Etapa~I.}
+\label{fig:etapa1_trajetorias}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig2_etapa1_erros.png}
+\caption{Evolução temporal dos erros de posição $e_p(t)$ e orientação $e_\theta(t)$ na Etapa~I.}
+\label{fig:etapa1_erros}
+\end{figure*}
+
+\subsection{Etapa II: Comparação APF vs. Bug2 nos Cenários A, B e GNRON}
+% TODO: Analisar a Tabela~\ref{tab:comparacao_p6} e a Figura~\ref{fig:etapa2_cenarios} (N = 5 sementes, media +/- desvio padrao) destacando o comportamento de cada metodo nos Cenarios A, B e GNRON.
+
+\input{tabelas/tabela1_comparacao_p6}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig3_etapa2_comparacao_cenarios.png}
+\caption{Trajetórias executadas (5 sementes) pelos métodos APF e Bug2 nos Cenários~A, B e no Subcenário GNRON.}
+\label{fig:etapa2_cenarios}
+\end{figure*}
+
+\subsection{Estudo Paramétrico do APF e Limiar GNRON}
+% TODO: Analisar a Figura~\ref{fig:etapa2_parametrico}:
+% - Sensibilidade a (rho_0, k_rep) no Cenario A (colisoes na configuracao Fraco com d_min = 0,20 m vs. convergencia sem colisoes nas demais).
+% - Efeito de rho_0 sobre o fenomeno GNRON (convergencia com rho_0 = 0,35 m < 0,45 m e estagnacao para rho_0 >= 0,80 m).
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig4_etapa2_estudo_parametrico.png}
+\caption{Estudo paramétrico do APF no Cenário~A (esquerda) e efeito do raio de influência repulsiva $\rho_0$ no fenômeno GNRON (direita).}
+\label{fig:etapa2_parametrico}
+\end{figure*}
