@@ -1,26 +1,174 @@
 \section{Fundamentação Teórica e Trabalhos Relacionados}
 
 \subsection{Cinemática Diferencial e Odometria (RK2)}
-% TODO: Apresentar:
-% - Referenciais inercial {I} e local {R} no ponto medio do eixo motriz (restricao nao-holonomica: \dot{y}_R = 0).
-% - Cinematica direta do robo diferencial (R = 0,05 m, L = 0,35 m) relacionando (omega_d, omega_e) a (v, omega) e (x_dot, y_dot, theta_dot).
-% - Discretizacao por Metodo do Ponto Medio (Runge-Kutta de 2a Ordem - RK2) vs. Euler explicito e normalizacao angular wrapToPi.
-% - Referencias: \cite{siegwart2004,corke2023,thrun2005}.
+
+A fim de modelar a cinemática de um robô móvel, o processo ocorre de
+baixo para cima (\textit{bottom-up}), pois cada roda contribui         
+individualmente para o movimento e também impõe restrições ao    
+deslocamento do chassi~\cite{siegwart2004}. Desse modo, as forças e      
+restrições de cada roda devem ser expressas em relação a um referencial  
+consistente, tornando essencial o mapeamento entre o referencial global  
+$\{X_I, Y_I\}$ e o referencial local $\{X_R, Y_R\}$, fixado no ponto     
+médio $P$ do eixo motriz~\cite{siegwart2004}. Considerando a pose planar
+$\boldsymbol{\xi}_I = [x,\, y,\, \theta]^T$, o mapeamento do movimento do
+referencial global para o referencial local é dado
+por~\cite{siegwart2004}:
+\begin{equation}
+\dot{\boldsymbol{\xi}}_R = R(\theta)\,\dot{\boldsymbol{\xi}}_I, 
+\qquad
+R(\theta) =
+\begin{bmatrix}
+\cos\theta & \sin\theta & 0 \\
+-\sin\theta & \cos\theta & 0 \\ 
+0 & 0 & 1 
+\end{bmatrix}, 
+\label{eq:rotacao_global_local}
+\end{equation} 
+em que $R(\theta)$ é a matriz de rotação ortogonal, $\theta$ representa a
+orientação do robô no plano e $\dot{\boldsymbol{\xi}}$ representa o vetor
+de velocidades (derivada da pose). Para mapear as velocidades do 
+referencial local para o referencial global, utiliza-se a matriz inversa 
+de $R(\theta)$: $\dot{\boldsymbol{\xi}}_I =
+R(\theta)^{-1}\dot{\boldsymbol{\xi}}_R =
+R(\theta)^T\dot{\boldsymbol{\xi}}_R$~\cite{siegwart2004}. Como nenhuma 
+das rodas permite deslocamento lateral sem escorregamento, a velocidade 
+lateral local é nula ($\dot{y}_R = 0$), restando apenas a velocidade 
+longitudinal $\dot{x}_R = v$ e a velocidade angular $\dot{\theta}_R =
+\omega$. Considerando o raio das rodas $R$ e a bitola $L = 2l$ entre     
+elas, a cinemática direta a partir das velocidades angulares das rodas
+direita ($\omega_d$) e esquerda ($\omega_e$) é dada 
+por~\cite{siegwart2004}: 
+\begin{equation}
+v = \frac{R}{2}(\omega_d + \omega_e), \qquad 
+\omega = \frac{R}{L}(\omega_d - \omega_e),
+\label{eq:cinematica_direta} 
+\end{equation}
+resultando no referencial global em $\dot{x} = v\cos\theta$, $\dot{y} =
+v\sin\theta$ e $\dot{\theta} = \omega$.
+
+Conforme o robô se movimenta no ambiente, erros sistemáticos e aleatórios
+nos \textit{encoders} e no contato com o solo fazem a odometria acumular 
+erro de posição e, principalmente, deriva angular entre o referencial 
+estimado e o original~\cite{siegwart2004,corke2023}. Na integração 
+numérica discreta ao longo de um intervalo $\Delta t$, sendo $\Delta s_k 
+= v_k\,\Delta t$ e $\Delta\theta_k = \omega_k\,\Delta t$, o método
+clássico de Runge-Kutta de 2ª~ordem (RK2, ou Método do Ponto Médio) reduz
+o erro de truncamento em curvas em comparação ao método de Euler        
+explícito. Enquanto o método de Euler assume que o robô percorre toda a
+distância $\Delta s_k$ mantendo a orientação inicial $\theta_k$ e gira
+apenas ao final do passo~\cite{corke2023}, o RK2 considera que a       
+orientação varia gradualmente de $\theta_k$ até $\theta_k +     
+\Delta\theta_k$ durante $\Delta t$, adotando a direção média $\theta_k +
+\Delta\theta_k/2$~\cite{siegwart2004}:
+\begin{align}
+x_{k+1} &= x_k + \Delta s_k \cos\!\left(\theta_k +
+\frac{\Delta\theta_k}{2}\right), \label{eq:rk2_x} \\
+y_{k+1} &= y_k + \Delta s_k \sin\!\left(\theta_k +
+\frac{\Delta\theta_k}{2}\right), \label{eq:rk2_y} \\
+\theta_{k+1} &= \operatorname{wrapToPi}(\theta_k + \Delta\theta_k),     
+\label{eq:rk2_theta}
+\end{align}
+em que $\operatorname{wrapToPi}(\alpha) =
+\operatorname{atan2}(\sin\alpha,\, \cos\alpha)$ mantém a orientação 
+normalizada no intervalo $(-\pi, \pi]$.
 
 \subsection{Campos Potenciais Artificiais (APF) e Limitações}
-% TODO: Apresentar:
-% - Formulacao de Khatib (1986): potencial atrativo U_att(q) e repulsivo U_rep(q), forcas F_att e F_rep (por feixe LiDAR dentro de rho_0).
-% - Projecao cinematica da forca resultante F_total para comandos (v, omega) com frenagem angular max(0, cos(e_theta)).
-% - As 4 limitacoes inerentes descritas por Koren & Borenstein (1991): minimos locais (armadilhas concavas), passagens estreitas, oscilacoes e GNRON (Goal Non-Reachable with Obstacles Nearby).
-% - Referencias: \cite{khatib1986,koren1991}.
+
+Para conduzir o robô até uma meta desviando de obstáculos, uma abordagem
+clássica é o método dos Campos Potenciais Artificiais
+(APF)~\cite{khatib1986,siegwart2004}. Nessa formulação, o robô move-se 
+sob a influência de um campo potencial artificial $U(\mathbf{q})$, no 
+qual a meta exerce atração e os obstáculos exercem
+repulsão~\cite{siegwart2004}: 
+\begin{align} 
+U(\mathbf{q}) &= U_{\text{att}}(\mathbf{q}) + U_{\text{rep}}(\mathbf{q}),
+\label{eq:apf_u_total} \\
+U_{\text{att}}(\mathbf{q}) &= \frac{1}{2}\, k_{\text{att}}\,
+\rho_{\text{goal}}^2(\mathbf{q}), \label{eq:apf_u_att} \\
+U_{\text{rep}}(\mathbf{q}) &=
+\begin{cases} 
+\dfrac{1}{2}\, k_{\text{rep}} \left( \dfrac{1}{\rho(\mathbf{q})} -     
+\dfrac{1}{\rho_0} \right)^2, & \text{se } \rho(\mathbf{q}) \le \rho_0, \\
+0, & \text{se } \rho(\mathbf{q}) > \rho_0,
+\end{cases} \label{eq:apf_u_rep} 
+\end{align} 
+em que $\mathbf{q} = [x, y]^T$ é a posição do robô, $U(\mathbf{q})$ é o
+campo potencial resultante, $U_{\text{att}}(\mathbf{q})$ é o potencial
+atrativo definido em~\eqref{eq:apf_u_att}, sendo $k_{\text{att}} > 0$
+o ganho de atração e $\rho_{\text{goal}}(\mathbf{q}) = \|\mathbf{q} -  
+\mathbf{q}_{\text{goal}}\|$ a distância euclidiana até a meta e    
+$U_{\text{rep}}(\mathbf{q})$ é o potencial repulsivo definido            
+em~\eqref{eq:apf_u_rep}, em que $k_{\text{rep}} > 0$ é o ganho de     
+repulsão, $\rho(\mathbf{q})$ é a menor distância ao obstáculo e $\rho_0$
+é o raio de influência repulsiva~\cite{siegwart2004}. 
+
+Em termos de forças, o gradiente negativo do potencial fornece      
+$\mathbf{F}(\mathbf{q}) = -\nabla U(\mathbf{q}) =
+\mathbf{F}_{\text{att}}(\mathbf{q}) +
+\mathbf{F}_{\text{rep}}(\mathbf{q})$~\cite{siegwart2004}:
+\begin{align}
+\mathbf{F}_{\text{att}}(\mathbf{q}) &= -k_{\text{att}}\,(\mathbf{q} -    
+\mathbf{q}_{\text{goal}}), \label{eq:apf_f_att} \\
+\mathbf{F}_{\text{rep}}(\mathbf{q}) &= 
+\begin{cases} 
+k_{\text{rep}} \left( \dfrac{1}{\rho(\mathbf{q})} - \dfrac{1}{\rho_0} 
+\right) \dfrac{\mathbf{q} - \mathbf{q}_{\text{obs}}}{\rho^3(\mathbf{q})}, & \text{se } \rho(\mathbf{q})
+\le \rho_0, \\
+\mathbf{0}, & \text{se } \rho(\mathbf{q}) > \rho_0,
+\end{cases} \label{eq:apf_f_rep}
+\end{align}
+em que $\mathbf{q}_{\text{obs}}$ denota o ponto mais próximo do obstáculo, considerando-se a superposição vetorial das forças repulsivas quando   
+múltiplos obstáculos ou pontos detectados estão dentro do raio
+$\rho_0$~\cite{khatib1986}. A magnitude e a direção de          
+$\mathbf{F}(\mathbf{q})$ definem o movimento desejado do robô em direção 
+à meta~\cite{siegwart2004}.
+
+Contudo, o APF apresenta limitações inerentes, como a formação de mínimos
+locais em obstáculos côncavos em formato de ``U'', nos quais as forças   
+atrativa e repulsivas se anulam mutuamente, resultando em     
+$\mathbf{F}(\mathbf{q}) = \mathbf{0}$ e impedindo o robô de sair da 
+armadilha~\cite{khatib1986,koren1991}. Além dessa limitação, destacam-se
+a dificuldade de atravessar passagens estreitas entre obstáculos 
+próximos, o surgimento de oscilações em corredores e na proximidade de 
+obstáculos~\cite{koren1991}, e o fenômeno GNRON (\textit{Goals
+Nonreachable with Obstacles Nearby}), que ocorre quando um obstáculo está
+muito próximo da meta: à medida que o robô se aproxima do alvo, a força
+atrativa diminui enquanto a força repulsiva aumenta, fazendo com que a
+posição da meta deixe de ser o mínimo global do potencial total e
+impedindo o robô de alcançá-la~\cite{ge2000}.
+
 
 \subsection{Algoritmo Bug2}
-% TODO: Apresentar:
-% - Definicao da linha-m entre S e T, pontos de impacto (H_i) e saida (L_i).
-% - Condicao de progresso estrito ||L_i - T|| < ||H_i - T|| e prova de convergencia em tempo finito.
-% - Maquina de estados finitos (GOAL_SEEKING <-> WALL_FOLLOWING) e controle polar/tangencial de contorno de parede.
-% - Referencias: \cite{lumelsky1987}.
+
+O algoritmo Bug2 é um método de navegação reativa que conduz o robô do
+ponto de partida $S$ até o alvo $T$ combinando deslocamento em linha reta
+com contorno de obstáculos~\cite{lumelsky1987}. Inicialmente, traça-se   
+uma reta imaginária ligando $S$ a $T$, denominada linha-$m$              
+(\textit{m-line})~\cite{corke2023}. O robô segue pela linha-$m$ em
+direção ao alvo até encontrá-lo ou colidir virtualmente com um obstáculo,
+registrando esse local como ponto de impacto $H^j$~\cite{lumelsky1987}.  
+Ao detectar o obstáculo, o robô passa a contornar sua borda em uma       
+direção fixa até reencontrar a linha-$m$ em um ponto $Q$ com caminho     
+livre para o alvo que satisfaça a condição de progresso:                 
+\begin{equation}
+\|Q - T\| < \|H^j - T\|, 
+\label{eq:bug2_progresso}
+\end{equation}
+em que $\|Q - T\|$ e $\|H^j - T\|$ representam as distâncias euclidianas
+dos pontos $Q$ e $H^j$ até o alvo $T$. Quando essa condição é atendida, o
+ponto $Q$ é definido como ponto de saída $L^j$ e o robô retoma o percurso
+pela linha-$m$ rumo a $T$; caso o contorno complete uma volta fechada
+retornando a $H^j$ sem encontrar saída válida, conclui-se que o alvo é   
+inatingível~\cite{lumelsky1987}.
+
+Sob condições ideais, o Bug2 garante convergência em tempo finito sempre
+que houver caminho livre até a meta~\cite{lumelsky1987}. Contudo, em   
+robôs móveis diferenciais reais ou simulados, a estratégia não considera 
+restrições não-holonômicas nas mudanças de direção e apresenta
+sensibilidade a ruídos dos sensores de alcance e à deriva odométrica ao 
+tentar retornar com precisão à linha-$m$~\cite{siegwart2004,corke2023}.
+
 
 \subsection{Trabalhos Relacionados}
-% TODO: Situar o uso de simulacao fisica (Gazebo / ROS 2) e bibliotecas de referencia na validacao de metodos classicos de navegacao reativa.
-% - Referencias: \cite{macenski2023,macenski2020,sakai2018}.
+
+Diversos estudos clássicos investigaram estratégias de navegação reativa sem mapa global prévio. Khatib~\cite{khatib1986} formulou o método dos Campos Potenciais Artificiais para desvio de obstáculos em tempo real combinando atração à meta e repulsão local, enquanto Koren e Borenstein~\cite{koren1991} analisaram suas limitações inerentes, destacando a ocorrência de mínimos locais em obstáculos côncavos, bloqueios em passagens estreitas e oscilações, ao passo que Ge e Cui~\cite{ge2000} formalizaram o problema GNRON quando há obstáculos próximos à meta. Como alternativa baseada em contorno topológico, Lumelsky e Stepanov~\cite{lumelsky1987} propuseram o algoritmo Bug2, demonstrando convergência em tempo finito mesmo diante de obstáculos desconhecidos de forma arbitrária. De modo complementar, Siegwart e Nourbakhsh~\cite{siegwart2004} e Corke~\cite{corke2023} sistematizam a modelagem cinemática diferencial, o acúmulo de erros na odometria discreta e os aspectos práticos desses métodos reativos em robôs móveis. Diferentemente de análises puramente teóricas ou com pose ideal, o presente trabalho avalia comparativamente o APF e o Bug2 sob odometria RK2 com ruído controlado, investigando o compromisso entre suavidade de trajetória e convergência em cenários com obstáculos esparsos, armadilha em ``U'' e bloqueio próximo à meta.

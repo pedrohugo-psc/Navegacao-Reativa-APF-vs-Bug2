@@ -1,8 +1,12 @@
 \section{Metodologia Experimental}
 
 \subsection{Plataforma de Simulação e Modelo do Robô}
-% TODO: Descrever o ambiente (Ubuntu 24.04, ROS 2 Jazzy Jalisco, Gazebo Sim 8.11.0 Harmonic) e a geometria calibrada do robo diferencial (base_link no centro do eixo motriz, colisoes esfericas pontuais com L_eff = 0,35 m, sensores e limites cinematicos/dinamicos).
-% Referenciar a Tabela~\ref{tab:parametros}.
+
+Os experimentos foram conduzidos em ambiente Ubuntu Linux 24.04 utilizando o \textit{middleware} ROS~2~Jazzy~Jalisco~\cite{ros2jazzy} integrado ao simulador físico Gazebo~Harmonic (versão~8.11.0)~\cite{gazeboharmonic} por meio da ponte \texttt{ros\_gz\_bridge}. Todos os nós foram implementados em Python (\texttt{rclpy}) com sincronização ao relógio simulado (\texttt{use\_sim\_time: true} via tópico \texttt{/clock}), garantindo consistência temporal entre simulação física, sensoriamento e registro de métricas.
+
+O modelo \texttt{robo\_diferencial} foi construído em formato SDF para representar um robô móvel diferencial com chassi rígido de $0{,}36\text{ m} \times 0{,}28\text{ m} \times 0{,}07\text{ m}$ ($4{,}0\text{ kg}$), apoiado por dois rodízios (\textit{casters}) frontal e traseiro sem atrito para estabilidade longitudinal. As duas rodas motrizes possuem raio $R = 0{,}05\text{ m}$ e bitola $L = 0{,}35\text{ m}$, utilizando geometria de colisão esférica de raio $0{,}05\text{ m}$ para assegurar contato pontual com o solo e bitola efetiva fiel ao modelo cinemático. O referencial local \texttt{base\_link} foi fixado exatamente no ponto médio do eixo motriz, onde a restrição não-holonômica $\dot{y}_R = 0$ é válida~\cite{siegwart2004}, evitando erro de braço de alavanca em curvas na comparação com o \textit{ground truth}.
+
+Para percepção e estimação de estado, o modelo incorpora \textit{encoders} virtuais nas juntas das rodas (\texttt{/joint\_states} a $100\text{ Hz}$), um sensor LiDAR~2D planar de $360^\circ$ (\texttt{gpu\_lidar}, $360$~feixes, alcance de $0{,}12\text{ m}$ a $8{,}0\text{ m}$, resolução de $0{,}01\text{ m}$ e taxa de $20\text{ Hz}$ em \texttt{/scan}) e um publicador de \textit{ground truth} (\texttt{/ground\_truth/odom} a $50\text{ Hz}$), assinado exclusivamente pelos nós avaliadores. Os parâmetros completos do robô, dos sensores, dos controladores e do protocolo experimental estão resumidos na Tabela~\ref{tab:parametros}.
 
 \input{tabelas/tabela_parametros}
 
