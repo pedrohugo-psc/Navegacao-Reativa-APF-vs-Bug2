@@ -56,7 +56,7 @@ GEOMETRIAS = {
         "circulos": [],
     },
     "cenario_gnron": {
-        "titulo": "Subcenário GNRON (Parede a 0,45 m atrás da meta)",
+        "titulo": "Cenário GNRON (Parede a 0,45 m atrás da meta)",
         "goal": (6.0, 0.0),
         "caixas": [(6.55, 0.0, 0.20, 2.2)],
         "circulos": [],
@@ -123,8 +123,8 @@ def gerar_tabela1():
         ("cenario_a", "Cenário A (Esparsos)", "bug2", "Bug2"),
         ("cenario_b", "Cenário B (Armadilha ``U'')", "apf", "APF"),
         ("cenario_b", "Cenário B (Armadilha ``U'')", "bug2", "Bug2"),
-        ("cenario_gnron", "Subcenário GNRON", "apf", "APF"),
-        ("cenario_gnron", "Subcenário GNRON", "bug2", "Bug2"),
+        ("cenario_gnron", "Cenário GNRON", "apf", "APF"),
+        ("cenario_gnron", "Cenário GNRON", "bug2", "Bug2"),
     ]
 
     print("\n=== TABELA 1 CONSOLIDADA (N = 5 SEMENTES: 42..46) ===")

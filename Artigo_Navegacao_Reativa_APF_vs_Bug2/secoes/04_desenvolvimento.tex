@@ -15,9 +15,12 @@
 % TODO: Detalhar a implementacao do no odom_estimator_node.py e do modulo kinematic_model.py (leitura de /joint_states, injecao opcional de ruido gaussiano com seed fixa, passo RK2 e publicacao em /odom_est).
 
 \subsection{Controladores Reativos: APF e Bug2}
-% TODO: Detalhar:
-% - apf_navigator_node.py: calculo vetorial de F_att e F_rep no referencial do robo/global, saturacao de velocidade/aceleracao e criterio de deteccao de minimo local.
-% - bug2_navigator_node.py: FSM (GOAL_SEEKING / WALL_FOLLOWING), registro de H_i e L_i em /nav_events, debounce de saida e lei de seguimento de parede.
+
+Ambos os controladores operam em malha fechada a $20\text{ Hz}$ assinando exclusivamente \texttt{/odom\_est} e \texttt{/scan}, sem acesso ao \textit{ground truth}, e encerram a navegação com sucesso quando a distância estimada até a meta é inferior à tolerância $d_{\text{tol}}$ ($0{,}20\text{ m}$).
+
+No nó \texttt{apf\_navigator\_node}, a força resultante é obtida somando a atração para a meta às contribuições repulsivas dos feixes do LiDAR que detectam obstáculos dentro do raio $\rho_0$. Como o robô diferencial não se desloca lateralmente, a direção e a magnitude dessa força resultante são convertidas em comandos de velocidade angular e linear por meio dos ganhos cinemáticos $k_\omega$ e $k_v$ (Tabela~\ref{tab:parametros}), reduzindo a velocidade linear quando o erro de orientação é elevado para que o robô gire antes de avançar. Quando o deslocamento do robô permanece desprezível por um intervalo contínuo, o controlador identifica automaticamente a estagnação por mínimo local ou GNRON.
+
+No nó \texttt{bug2\_navigator\_node}, o algoritmo clássico~\cite{lumelsky1987} foi implementado como uma máquina de estados finitos alternando entre busca direta (\texttt{GOAL\_SEEKING}) e contorno de obstáculo (\texttt{WALL\_FOLLOWING}), com ajustes práticos necessários para lidar com as dimensões físicas do robô, a discretização temporal e o ruído sensorial~\cite{siegwart2004}. No modo \texttt{GOAL\_SEEKING}, o robô segue a linha-$m$ rumo à meta até detectar um obstáculo frontal dentro do limiar $d_{\text{hit}}$, registrando o ponto de impacto $H^j$ e iniciando o contorno. No modo \texttt{WALL\_FOLLOWING}, o controlador mantém o obstáculo a uma distância lateral segura $d_{\text{wall}}$ até satisfazer simultaneamente as condições práticas de saída para o ponto $L^j$: ter percorrido um trecho mínimo de contorno $d_{\text{debounce}}$ (evitando trocas falsas de estado logo após $H^j$), reencontrar a linha-$m$ dentro da faixa de tolerância $\delta_m$, estar mais próximo da meta do que $H^j$ por uma margem mínima $\epsilon$ e possuir caminho frontal livre na direção do alvo.
 
 \subsection{Isolamento do \textit{Ground Truth} e Registro de Métricas}
 % TODO: Explicar a garantia arquitetural de que apenas metrics_logger_node.py e nav_metrics_logger_node.py assinam /ground_truth/odom, alem da orquestracao automatizada das baterias (scripts run_etapa1.py e run_fase6_experimentos.py).

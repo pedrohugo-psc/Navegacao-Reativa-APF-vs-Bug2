@@ -6,26 +6,61 @@ Os experimentos foram conduzidos em ambiente Ubuntu Linux 24.04 utilizando o \te
 
 O modelo \texttt{robo\_diferencial} foi construído em formato SDF para representar um robô móvel diferencial com chassi rígido de $0{,}36\text{ m} \times 0{,}28\text{ m} \times 0{,}07\text{ m}$ ($4{,}0\text{ kg}$), apoiado por dois rodízios (\textit{casters}) frontal e traseiro sem atrito para estabilidade longitudinal. As duas rodas motrizes possuem raio $R = 0{,}05\text{ m}$ e bitola $L = 0{,}35\text{ m}$, utilizando geometria de colisão esférica de raio $0{,}05\text{ m}$ para assegurar contato pontual com o solo e bitola efetiva fiel ao modelo cinemático. O referencial local \texttt{base\_link} foi fixado exatamente no ponto médio do eixo motriz, onde a restrição não-holonômica $\dot{y}_R = 0$ é válida~\cite{siegwart2004}, evitando erro de braço de alavanca em curvas na comparação com o \textit{ground truth}.
 
-Para percepção e estimação de estado, o modelo incorpora \textit{encoders} virtuais nas juntas das rodas (\texttt{/joint\_states} a $100\text{ Hz}$), um sensor LiDAR~2D planar de $360^\circ$ (\texttt{gpu\_lidar}, $360$~feixes, alcance de $0{,}12\text{ m}$ a $8{,}0\text{ m}$, resolução de $0{,}01\text{ m}$ e taxa de $20\text{ Hz}$ em \texttt{/scan}) e um publicador de \textit{ground truth} (\texttt{/ground\_truth/odom} a $50\text{ Hz}$), assinado exclusivamente pelos nós avaliadores. Os parâmetros completos do robô, dos sensores, dos controladores e do protocolo experimental estão resumidos na Tabela~\ref{tab:parametros}.
+Para percepção e estimação de estado, o modelo incorpora \textit{encoders} virtuais nas juntas das rodas (\texttt{/joint\_states} a $100\text{ Hz}$), um sensor LiDAR~2D planar de $360^\circ$ (\texttt{gpu\_lidar}, $360$~feixes, alcance de $0{,}12\text{ m}$ a $8{,}0\text{ m}$, resolução de $0{,}01\text{ m}$ e taxa de $20\text{ Hz}$ em \texttt{/scan}) e um publicador de \textit{ground truth} (\texttt{/ground\_truth/odom} a $50\text{ Hz}$), assinado exclusivamente pelos nós avaliadores. Os parâmetros completos do robô, dos sensores, dos controladores e do protocolo experimental estão resumidos na Tabela~\ref{tab:parametros}, sendo o papel de cada parâmetro prático das leis de controle detalhado na Seção~IV-C.
 
 \input{tabelas/tabela_parametros}
 
 \subsection{Protocolo da Etapa I --- Validação da Odometria}
-% TODO: Descrever as 3 trajetorias de teste em arena livre (mundo_etapa1_vazio.sdf):
-% 1. Linha reta (5 m)
-% 2. Arco circular (R_c = 1 m)
-% 3. Percurso composto em "S"
-% Explicar a frequencia de integracao (50 Hz), uso de use_sim_time e comparacao contra /ground_truth/odom.
+
+O experimento iniciou-se com a validação da odometria em uma arena vazia construída no Gazebo (\texttt{mundo\_\allowbreak etapa1\_\allowbreak vazio.sdf}), com o robô partindo da origem $(0, 0, 0)$ e \textit{encoders} submetidos a ruído gaussiano $\sigma_\omega = 0{,}05\text{ rad/s}$ com semente $s = 42$. Os comandos de velocidade $(v, \omega)$ são enviados em malha aberta pelo nó responsável pela trajetória, sincronizado ao relógio da simulação (\texttt{/clock}) após $1{,}5\text{ s}$ iniciais de estabilização.
+
+Essa configuração permitiu executar três trajetórias de teste para validar o robô, comparando o movimento estimado pela odometria RK2 (\texttt{/odom\_est}) com o movimento real fornecido pelo \textit{ground truth} do simulador (\texttt{/ground\_truth/odom}, usado exclusivamente para avaliação). A primeira trajetória foi uma linha reta, na qual o robô avançou com velocidade linear $v = 0{,}25\text{ m/s}$ e angular $\omega = 0\text{ rad/s}$ durante $20{,}0\text{ s}$, percorrendo $5{,}0\text{ m}$. A segunda foi um arco circular utilizando a mesma velocidade linear e velocidade angular $\omega = 0{,}25\text{ rad/s}$ durante $25{,}13\text{ s}$, descrevendo uma volta completa de raio $R_c = 1{,}0\text{ m}$. Por fim, executou-se um percurso composto em ``S'', formado por uma sequência de cinco trechos a $v = 0{,}25\text{ m/s}$ alternando segmentos retos e duas curvas em sentidos opostos ($\omega = +0{,}35\text{ rad/s}$ e $\omega = -0{,}35\text{ rad/s}$ por $4{,}5\text{ s}$ cada, totalizando $20{,}0\text{ s}$).
 
 \subsection{Protocolo da Etapa II --- Cenários de Navegação e Estudo Paramétrico}
-% TODO: Descrever os 3 cenarios (arquivos .sdf), posicoes de partida S=(0,0) e meta T, e o estudo parametrico:
-% - Cenario A (cenario_a_esparsos.sdf): obstaculos convexos esparsos + corredor, T=(8,0).
-% - Cenario B (cenario_b_armadilha_u.sdf): parede concava em "U", T=(6,0).
-% - Subcenario GNRON (cenario_gnron.sdf): parede a 0,45 m atras da meta T=(6,0).
-% - Estudo parametrico do APF no Cenario A (Fraco, Nominal, Forte, Ganho Alto) e variacao de rho_0 no GNRON (0,35; 0,80; 1,10; 1,50 m).
+
+O segundo experimento teve como objetivo avaliar o comportamento do robô utilizando os métodos APF e Bug2 em três cenários distintos:
+\begin{itemize}
+    \item \textbf{Cenário~A} (\texttt{cenario\_\allowbreak a\_\allowbreak esparsos.sdf}): meta em $T = (8{,}0;\, 0{,}0)\text{ m}$, com obstáculos convexos esparsos (duas caixas e um cilindro) seguidos de um corredor formado por duas paredes paralelas com abertura livre de $1{,}6\text{ m}$, avaliando o desempenho e a segurança dos dois métodos.
+    \item \textbf{Cenário~B} (\texttt{cenario\_\allowbreak b\_\allowbreak armadilha\_\allowbreak u.sdf}): meta em $T = (6{,}0;\, 0{,}0)\text{ m}$, com uma parede côncava em formato de ``U'' bloqueando a linha reta até o alvo, avaliando o problema dos mínimos locais no APF frente à capacidade de escape do Bug2.
+    \item \textbf{Cenário~GNRON} (\texttt{cenario\_\allowbreak gnron.sdf}): meta em $T = (6{,}0;\, 0{,}0)\text{ m}$, com uma parede posicionada a $0{,}45\text{ m}$ atrás do alvo, reproduzindo o bloqueio próximo à meta~\cite{ge2000}.
+\end{itemize}
+
+Em todos os cenários, o robô parte da origem $S = (0, 0)$ com orientação inicial $\theta = 0$ rumo à meta $T = \mathbf{q}_{\text{goal}}$, sendo cada método avaliado em $5$~execuções (sementes $s \in \{42, 43, 44, 45, 46\}$), totalizando $30$~rodadas.
+
+Além disso, foram realizadas $8$~rodadas extras para o estudo paramétrico do APF com semente $s = 42$ e $k_{\text{att}} = 1{,}0$. No Cenário~A, investigou-se a sensibilidade variando o par $(\rho_0,\, k_{\text{rep}})$ em quatro configurações --- \textit{Fraco} ($0{,}60\text{ m};\, 0{,}40$), \textit{Nominal} ($1{,}10\text{ m};\, 0{,}80$), \textit{Forte} ($1{,}60\text{ m};\, 1{,}50$) e \textit{Ganho Alto} ($1{,}10\text{ m};\, 2{,}20$) --- a fim de observar o efeito sobre colisões, margem $d_{\min}$ e trajetória. No Cenário~GNRON, variou-se o raio de influência $\rho_0 \in \{0{,}35;\, 0{,}80;\, 1{,}10;\, 1{,}50\}\text{ m}$ (com $k_{\text{rep}} = 0{,}80$), comparando o comportamento quando $\rho_0$ fica abaixo ou acima da distância da parede atrás da meta ($0{,}45\text{ m}$).
+
+
 
 \subsection{Métricas de Avaliação e Repetibilidade}
-% TODO: Definir formalmente:
-% - Etapa I: erros instantaneos e_p(t), e_theta(t) e RMSE_p, RMSE_theta.
-% - Etapa II: Taxa de sucesso (%), Colisoes, Comprimento L_traj (m), Tempo total T_tot (s), Distancia minima aos obstaculos d_min (m), Taxa de bloqueio / minimos locais (%), Erro odométrico final e_p(t_f) e Distancia real a meta d_meta (m).
-% - Repetibilidade: N = 5 sementes fixas {42, 43, 44, 45, 46} com ruido branco gaussiano nos encoders (sigma_omega = 0,05 rad/s) e no LiDAR (sigma_rho = 0,01 m).
+
+Para o primeiro experimento, com amostragem sincronizada a $20\text{ Hz}$ ao longo de $N$~instantes, foram calculadas as seguintes métricas a fim de quantificar a diferença entre a pose estimada pela odometria RK2 e o \textit{ground truth}:
+\begin{itemize}
+    \item \textbf{Erro instantâneo de posição:}
+    \[
+    e_p(t_k) = \sqrt{(x_{\text{gt},k} - x_{\text{est},k})^2 + (y_{\text{gt},k} - y_{\text{est},k})^2}.
+    \]
+    \item \textbf{Erro instantâneo de orientação:}
+    \[
+    e_\theta(t_k) = \left|\operatorname{wrapToPi}(\theta_{\text{gt},k} - \theta_{\text{est},k})\right|.
+    \]
+    \item \textbf{Erros quadráticos médios (RMSE):}
+    \[
+    \begin{aligned}
+    \text{RMSE}_p &= \sqrt{\frac{1}{N}\sum_{k=1}^{N} e_p^2(t_k)}, \\
+    \text{RMSE}_\theta &= \sqrt{\frac{1}{N}\sum_{k=1}^{N} e_\theta^2(t_k)},
+    \end{aligned}
+    \]
+    além dos erros ao final do percurso, $e_p(t_f)$ e $e_\theta(t_f)$.
+\end{itemize}
+
+Já no segundo experimento, as métricas obtidas em cada execução foram:
+\begin{itemize}
+    \item \textbf{Taxa de sucesso (\%):} percentual de execuções em que o robô alcançou a meta dentro da tolerância $d_{\text{tol}} = 0{,}20\text{ m}$.
+    \item \textbf{Colisões:} contagem de eventos em que a menor leitura do LiDAR ficou abaixo do raio de colisão do chassi ($0{,}21\text{ m}$).
+    \item \textbf{Comprimento real ($L_{\text{traj}}$) e tempo total ($T_{\text{tot}}$):} distância percorrida acumulada sobre o \textit{ground truth} e duração simulada até o encerramento.
+    \item \textbf{Distância mínima aos obstáculos ($d_{\min}$):} menor distância medida pelo LiDAR ao longo de todo o percurso.
+    \item \textbf{Taxa de bloqueios (\%):} percentual de execuções encerradas por mínimo local/GNRON ou \textit{timeout}.
+    \item \textbf{Erro odométrico final ($e_p(t_f)$) e distância real final à meta ($d_{\text{meta}}$):} desvios avaliados no instante final em relação ao \textit{ground truth}.
+\end{itemize}
+
+Além disso, adotou-se a repetibilidade estatística para avaliar o comportamento consistente de cada método: como o simulador físico é determinístico, injeta-se ruído gaussiano controlado nos \textit{encoders} ($\sigma_\omega = 0{,}05\text{ rad/s}$) e no LiDAR ($\sigma_\rho = 0{,}01\text{ m}$) com $5$~sementes fixas ($s \in \{42, 43, 44, 45, 46\}$), consolidando os resultados em média $\pm$ desvio padrão.
